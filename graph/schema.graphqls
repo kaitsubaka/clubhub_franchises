@@ -1,0 +1,74 @@
+# GraphQL schema example
+#
+# https://gqlgen.com/getting-started/
+
+type Franchise {
+  id: ID!
+  title: String!
+  siteName: String!
+  url: String!
+  location: Location!
+}
+
+type Company {
+  id: ID!
+  owner: CompanyOwner!
+  information: CompanyInformation!
+  franchises: [Franchise!]!
+}
+
+type CompanyInformation {
+  name: String!
+  tax_number: String!
+  location: Location!
+}
+
+type CompanyOwner {
+  id: ID!
+  name: String!
+  firstName: String!
+  lastName: String!
+  contact: CompanyOwnerContact!
+}
+
+type CompanyOwnerContact {
+  email: String!
+  phone: String!
+  location: Location!
+}
+
+type Location {
+  zip_code: String!
+  adress: String!
+  city: String!
+  country: String!
+}
+
+input FindFranchisesCriteria {
+  name: String
+}
+
+type Query {
+  findFranchises(criteria: FindFranchisesCriteria): [Franchise!]!
+}
+
+input CreateFranchiseInput {
+  url: String!
+}
+
+input UpdateFranchiseInput {
+  id: ID!
+  url: String
+  name: String
+  company: ID
+}
+
+type CreatedFranchise {
+  id: ID!
+  url: String!
+}
+
+type Mutation {
+  createFranchise(input: CreateFranchiseInput!): CreatedFranchise!
+  updateFranchise(input: UpdateFranchiseInput!): Franchise!
+}

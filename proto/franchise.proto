@@ -1,0 +1,15 @@
+syntax = "proto3";
+option go_package = "./proto";
+
+service FranchiseService {
+  rpc Create(CreateFranchiseRequest) returns (SuccessResponse);
+}
+
+message CreateFranchiseRequest{
+  string id =1;
+  string url = 2;
+}
+
+message SuccessResponse{
+    string message = 1;
+}
