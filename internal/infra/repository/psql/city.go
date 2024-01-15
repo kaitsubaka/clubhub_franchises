@@ -4,18 +4,9 @@ import (
 	"errors"
 
 	"github.com/kaitsubaka/clubhub_franchises/internal/core/dto"
+	pubdto "github.com/kaitsubaka/clubhub_franchises/internal/infra/dto"
 	"gorm.io/gorm"
 )
-
-type CityModel struct {
-	gorm.Model
-	CountryID uint
-	Name      string
-}
-
-func (CityModel) TableName() string {
-	return "cities"
-}
 
 type CityRepository struct {
 	db *gorm.DB
@@ -26,14 +17,14 @@ func NewCityRepository(db *gorm.DB) *CityRepository {
 }
 
 func (lr *CityRepository) Put(c dto.CityDTO) (dto.CityDTO, error) {
-	localCity := new(CityModel)
+	localCity := new(pubdto.CityModel)
 	trx := lr.db.First(localCity, "country_id = ? AND name = ?",
 		c.CountryID,
 		c.Name,
 	)
 	if trx.Error != nil {
 		if errors.Is(trx.Error, gorm.ErrRecordNotFound) {
-			city := &CityModel{
+			city := &pubdto.CityModel{
 				CountryID: c.CountryID,
 				Name:      c.Name,
 			}

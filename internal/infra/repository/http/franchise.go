@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"log"
 	"net/http"
 	liburl "net/url"
 
@@ -32,9 +33,10 @@ func (sfr *ScrapFranchiseRepository) Scrap(url string) (scrap pubdto.ScrapDTO, e
 	pnjData := sfr.parseProtocolAndJumps(url)
 	htmlData := sfr.parseHTMLData(url)
 	resolved := promise.All(done, htmlData, pnjData, whoisData)
+	var localErrors error
 	for v := range resolved {
 		if err, ok := v.(error); ok {
-			errors = multierr.Append(errors, err)
+			localErrors = multierr.Append(errors, err)
 			continue
 		}
 		switch v.(type) {
@@ -45,6 +47,9 @@ func (sfr *ScrapFranchiseRepository) Scrap(url string) (scrap pubdto.ScrapDTO, e
 		case whoisparser.WhoisInfo:
 			scrap.WhoisData = v.(whoisparser.WhoisInfo)
 		}
+	}
+	if localErrors != nil {
+		log.Println("[INFO] Scrap: ", localErrors)
 	}
 	return
 }
@@ -79,14 +84,14 @@ func (sfr *ScrapFranchiseRepository) parseWhoisData(url string) <-chan any {
 }
 
 func (sfr *ScrapFranchiseRepository) parseProtocolAndJumps(url string) <-chan any {
-	chann := make(chan any)
+	prom := make(chan any)
 
 	go func() {
-		defer close(chann)
+		defer close(prom)
 
 		resp, err := http.Get(fmt.Sprintf(sfr.toolURL, url))
 		if err != nil {
-			chann <- err
+			prom <- err
 			return
 		}
 
@@ -94,7 +99,7 @@ func (sfr *ScrapFranchiseRepository) parseProtocolAndJumps(url string) <-chan an
 
 		b, err := io.ReadAll(resp.Body)
 		if err != nil {
-			chann <- err
+			prom <- err
 			return
 		}
 
@@ -102,17 +107,17 @@ func (sfr *ScrapFranchiseRepository) parseProtocolAndJumps(url string) <-chan an
 
 		err = json.Unmarshal(b, sslLabsResponse)
 		if err != nil {
-			chann <- err
+			prom <- err
 			return
 		}
 
-		chann <- pubdto.ProtocolAndJumpsDTO{
+		prom <- pubdto.ProtocolAndJumpsDTO{
 			Protocol: sslLabsResponse.Protocol,
 			Jumps:    len(sslLabsResponse.Endpoints),
 		}
 	}()
 
-	return chann
+	return prom
 }
 
 func (sfr *ScrapFranchiseRepository) parseHTMLData(url string) <-chan any {

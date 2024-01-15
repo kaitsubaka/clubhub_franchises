@@ -67,6 +67,8 @@ func main() {
 		usecase.NewFranchiseUseCase(
 			http.NewScrapFranchiseRepository(scrapToolURL),
 			psql.NewCountryRepository(db),
+			psql.NewCityRepository(db),
+			psql.NewCompanyRepository(db),
 			psql.NewLocationRepository(db),
 			psql.NewFranchiseRepository(db),
 		),

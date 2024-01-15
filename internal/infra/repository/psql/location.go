@@ -18,7 +18,7 @@ func NewLocationRepository(db *gorm.DB) *LocationRepository {
 
 func (lr *LocationRepository) Put(l dto.LocationDTO) (dto.LocationDTO, error) {
 	localLocation := new(publicdto.LocationModel)
-	trx := lr.db.First(localLocation, "adress = ? AND city_id = ? AND zip_code = ?",
+	trx := lr.db.First(localLocation, "address = ? AND city_id = ? AND zip_code = ?",
 		l.Address,
 		l.CityID,
 		l.ZipCode,
