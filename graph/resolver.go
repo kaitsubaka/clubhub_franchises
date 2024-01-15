@@ -2,6 +2,7 @@ package graph
 
 import (
 	"fmt"
+	"os"
 
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
@@ -27,22 +28,26 @@ type Resolver struct {
 
 func NewResolver() *Resolver {
 	db, err := gorm.Open(postgres.Open(db.NewConnectionString(db.PostgresOptions{
-		Host:     "localhost",
-		User:     "admin",
+		Host:     os.Getenv("POSTGRES_HOST"),
+		User:     "postgres",
 		Password: "admin",
-		DBName:   "test",
-		Port:     "5432",
+		DBName:   "franchises_db",
+		Port:     os.Getenv("POSTGRES_PORT"),
 	})), new(gorm.Config))
 	if err != nil {
 		panic(fmt.Errorf("graph.NewResolver: error creating db connection (%w)", err))
 	}
-	franchiseGRCPConn, err := grpc.Dial("localhost:5001", grpc.WithTransportCredentials(insecure.NewCredentials()))
+	pendingFranchiseRepository := psql.NewPendingFranchizeRepository(db)
+	franchiseGRCPConn, err := grpc.Dial(
+		fmt.Sprintf("%s:%s", os.Getenv("MS_CLIENT_HOST"), os.Getenv("MS_CLIENT_PORT")),
+		grpc.WithTransportCredentials(insecure.NewCredentials()),
+	)
 	if err != nil {
-		panic(fmt.Errorf("graph.NewResolver: error creating db connection (%w)", err))
+		panic(fmt.Errorf("graph.NewResolver: error creating ms connection (%w)", err))
 	}
 	q, err := queue.New(100).
 		WithNumOfWorker(10).
-		WithSubscriber(usecase.NewProcessFranchiseUseCase(franchiseGRCPConn)).
+		WithSubscriber(usecase.NewProcessFranchiseUseCase(franchiseGRCPConn, pendingFranchiseRepository)).
 		Build()
 	if err != nil {
 		panic(fmt.Errorf("graph.NewResolver: error creating db connection (%w)", err))
@@ -51,7 +56,7 @@ func NewResolver() *Resolver {
 		queue:             q,
 		franchiseGRCPConn: franchiseGRCPConn,
 		pendingFranchizeUseCase: usecase.NewPendingFranchiseUseCase(
-			psql.NewPendingFranchizeRepository(db),
+			pendingFranchiseRepository,
 			q,
 		),
 	}

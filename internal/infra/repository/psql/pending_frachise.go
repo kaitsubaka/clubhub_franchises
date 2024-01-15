@@ -24,8 +24,9 @@ func (pfr *PendingFranchizeRepository) Put(n dto.PendingFranchiseDTO) (dto.Pendi
 	if trx.Error != nil {
 		if errors.Is(trx.Error, gorm.ErrRecordNotFound) {
 			trx = pfr.db.Create(&publicdto.PendingFranchizeModel{
-				ID:  n.ID,
-				URL: n.URL,
+				ID:     n.ID,
+				URL:    n.URL,
+				Status: "CREATED",
 			})
 			return n, trx.Error
 		}
@@ -33,4 +34,25 @@ func (pfr *PendingFranchizeRepository) Put(n dto.PendingFranchiseDTO) (dto.Pendi
 	}
 	n.ID = localNewFranchise.ID
 	return n, nil
+}
+
+func (pfr *PendingFranchizeRepository) UpdateStatus(n dto.PendingFranchiseDTO) error {
+	trx := pfr.db.Save(&publicdto.PendingFranchizeModel{
+		ID:     n.ID,
+		Status: n.Status,
+		Error:  n.Error,
+	})
+	if trx.Error != nil {
+		return trx.Error
+	}
+	return nil
+}
+
+func (pfr *PendingFranchizeRepository) GetStatusByID(id string) (string, error) {
+	pm := new(publicdto.PendingFranchizeModel)
+	trx := pfr.db.First(pm, "id = ?", id)
+	if trx.Error != nil {
+		return "", trx.Error
+	}
+	return pm.Status, nil
 }

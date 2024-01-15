@@ -7,8 +7,10 @@ import (
 
 type PendingFranchizeModel struct {
 	gorm.Model
-	ID  string
-	URL string
+	ID     string
+	URL    string
+	Status string
+	Error  *string
 }
 
 func (PendingFranchizeModel) TableName() string {

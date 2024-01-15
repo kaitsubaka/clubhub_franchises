@@ -3,21 +3,25 @@ package usecase
 import (
 	"context"
 	"errors"
+	"fmt"
 	"log"
 
 	"github.com/kaitsubaka/clubhub_franchises/internal/core/common/queue/event"
 	"github.com/kaitsubaka/clubhub_franchises/internal/core/dto"
+	psqlrport "github.com/kaitsubaka/clubhub_franchises/internal/core/port/repository/psql"
 	pb "github.com/kaitsubaka/clubhub_franchises/proto"
 	"google.golang.org/grpc"
 )
 
 type ProcessFranchiseUseCase struct {
-	franchiseServiceClient pb.FranchiseServiceClient
+	franchiseServiceClient     pb.FranchiseServiceClient
+	pendingFranchiseRepository psqlrport.PendingFranchizeRepository
 }
 
-func NewProcessFranchiseUseCase(serviceConn grpc.ClientConnInterface) *ProcessFranchiseUseCase {
+func NewProcessFranchiseUseCase(serviceConn grpc.ClientConnInterface, pendingFranchiseRepository psqlrport.PendingFranchizeRepository) *ProcessFranchiseUseCase {
 	return &ProcessFranchiseUseCase{
-		franchiseServiceClient: pb.NewFranchiseServiceClient(serviceConn),
+		franchiseServiceClient:     pb.NewFranchiseServiceClient(serviceConn),
+		pendingFranchiseRepository: pendingFranchiseRepository,
 	}
 }
 
@@ -26,10 +30,35 @@ func (pfuc *ProcessFranchiseUseCase) Subscribe(e event.Event) error {
 	if !ok {
 		return errors.New("ProcessFranchiseUseCase.Subscribe:the event data cannot be handled")
 	}
-	return pfuc.process(fDTO)
+	if err := pfuc.process(fDTO); err != nil {
+		errosMsg := fmt.Sprint(err)
+		err = pfuc.pendingFranchiseRepository.UpdateStatus(dto.PendingFranchiseDTO{
+			ID:     fDTO.ID,
+			Error:  &errosMsg,
+			Status: "ERROR",
+		})
+		if err != nil {
+			return err
+		}
+	}
+	return nil
 }
 
 func (pfuc *ProcessFranchiseUseCase) process(in dto.PendingFranchiseDTO) error {
+	status, err := pfuc.pendingFranchiseRepository.GetStatusByID(in.ID)
+	if err != nil {
+		return err
+	}
+	if status != "CREATED" {
+		return fmt.Errorf("process: the francise with id %s is not in status created", in.ID)
+	}
+	err = pfuc.pendingFranchiseRepository.UpdateStatus(dto.PendingFranchiseDTO{
+		ID:     in.ID,
+		Status: "PROCESSING",
+	})
+	if err != nil {
+		return err
+	}
 	res, err := pfuc.franchiseServiceClient.Create(context.Background(), &pb.CreateFranchiseRequest{
 		Id:  in.ID,
 		Url: in.URL,
@@ -38,5 +67,12 @@ func (pfuc *ProcessFranchiseUseCase) process(in dto.PendingFranchiseDTO) error {
 		return err
 	}
 	log.Println("[INFO] process: ", res.Message)
+	err = pfuc.pendingFranchiseRepository.UpdateStatus(dto.PendingFranchiseDTO{
+		ID:     in.ID,
+		Status: "COMPLETED",
+	})
+	if err != nil {
+		return err
+	}
 	return nil
 }
