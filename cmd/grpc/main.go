@@ -5,7 +5,9 @@ import (
 	"fmt"
 	"log"
 	"net"
+	"os"
 
+	"github.com/kaitsubaka/clubhub_franchises/internal/core/common"
 	"github.com/kaitsubaka/clubhub_franchises/internal/core/common/db"
 	"github.com/kaitsubaka/clubhub_franchises/internal/core/dto"
 	ucport "github.com/kaitsubaka/clubhub_franchises/internal/core/port/usecase"
@@ -47,26 +49,28 @@ func (f *FranchiseGRPCServer) Create(ctx context.Context, req *pb.CreateFranchis
 func main() {
 
 	// add a listener address
-	lis, err := net.Listen("tcp", ":5001")
+	lis, err := net.Listen("tcp", fmt.Sprintf(common.DefaultBaseAddressWOPort, os.Getenv("PORT")))
 	if err != nil {
 		log.Fatalf("ERROR STARTING THE SERVER : %v", err)
 	}
 	// start the grpc server
 	grpcServer := grpc.NewServer()
 	db, err := gorm.Open(postgres.Open(db.NewConnectionString(db.PostgresOptions{
-		Host:     "localhost",
-		User:     "admin",
+		Host:     os.Getenv("POSTGRES_HOST"),
+		User:     "postgres",
 		Password: "admin",
-		DBName:   "test",
-		Port:     "5432",
+		DBName:   "franchises_db",
+		Port:     os.Getenv("POSTGRES_PORT"),
 	})), new(gorm.Config))
 	if err != nil {
-		panic(fmt.Errorf("graph.NewResolver: error creating db connection (%w)", err))
+		log.Fatalf("grpc.main: error creating db connection (%v)", err)
 	}
 	pb.RegisterFranchiseServiceServer(grpcServer, NewFranchiseGRPCServer(
 		usecase.NewFranchiseUseCase(
 			http.NewScrapFranchiseRepository(scrapToolURL),
 			psql.NewCountryRepository(db),
+			psql.NewCityRepository(db),
+			psql.NewCompanyRepository(db),
 			psql.NewLocationRepository(db),
 			psql.NewFranchiseRepository(db),
 		),

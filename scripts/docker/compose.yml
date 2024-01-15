@@ -1,0 +1,52 @@
+version: '3.8'
+services:
+  grapql_app:
+    build:
+      context: ../..
+      dockerfile: ./scripts/docker/http/Dockerfile
+    container_name: GraphqlAPP
+    restart: always
+    ports:
+      - '8080:8080'
+    depends_on:
+      postgres_db:
+                  condition: service_healthy
+    environment:
+      - POSTGRES_HOST=postgres_db
+      - POSTGRES_PORT=5432
+      - MS_CLIENT_HOST=grcp_app
+      - MS_CLIENT_PORT=5001
+      - PORT=8080
+  grcp_app:
+    build:
+      context: ../..
+      dockerfile: ./scripts/docker/grcp/Dockerfile
+    container_name: gRCPAPP
+    restart: always
+    ports:
+      - '5001:5001'
+    depends_on:
+      postgres_db:
+                  condition: service_healthy
+      grapql_app:
+                  condition: service_started
+    environment:
+      - POSTGRES_HOST=postgres_db
+      - POSTGRES_PORT=5432
+      - PORT=5001
+      
+  postgres_db:
+    image: postgres:latest
+    restart: always
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=admin
+    ports:
+      - '5432:5432'
+    volumes:
+      - type: bind
+        source: ../db/init_schema.sql
+        target: /docker-entrypoint-initdb.d/init_schema.sql
+        read_only: true
+    healthcheck:
+      test: pg_isready -U postgres

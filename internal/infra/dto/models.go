@@ -7,8 +7,10 @@ import (
 
 type PendingFranchizeModel struct {
 	gorm.Model
-	ID  string
-	URL string
+	ID     string
+	URL    string
+	Status string
+	Error  *string
 }
 
 func (PendingFranchizeModel) TableName() string {
@@ -17,16 +19,16 @@ func (PendingFranchizeModel) TableName() string {
 
 type CompanyModel struct {
 	gorm.Model
-	ID             string `gorm:"primarykey"`
-	Name           string
-	CompanyOwnerID string
-	TaxNumber      string
-	LocationID     string
-	Location       LocationModel `gorm:"foreignKey:LocationID;references:ID"`
+	ID         string `gorm:"primarykey"`
+	Name       string
+	OwnerID    string
+	TaxNumber  string
+	LocationID uint
+	Location   LocationModel `gorm:"foreignKey:LocationID;references:ID"`
 }
 
 func (CompanyModel) TableName() string {
-	return "company"
+	return "companies"
 }
 
 type FranchiseModel struct {
@@ -63,4 +65,23 @@ type LocationModel struct {
 
 func (LocationModel) TableName() string {
 	return "locations"
+}
+
+type CityModel struct {
+	gorm.Model
+	CountryID uint
+	Name      string
+}
+
+func (CityModel) TableName() string {
+	return "cities"
+}
+
+type CountryModel struct {
+	gorm.Model
+	Name string
+}
+
+func (CountryModel) TableName() string {
+	return "countries"
 }
