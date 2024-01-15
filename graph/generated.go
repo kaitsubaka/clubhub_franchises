@@ -82,7 +82,7 @@ type ComplexityRoot struct {
 	Franchise struct {
 		ID       func(childComplexity int) int
 		Location func(childComplexity int) int
-		SiteName func(childComplexity int) int
+		Name     func(childComplexity int) int
 		Title    func(childComplexity int) int
 		URL      func(childComplexity int) int
 	}
@@ -264,12 +264,12 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Franchise.Location(childComplexity), true
 
-	case "Franchise.siteName":
-		if e.complexity.Franchise.SiteName == nil {
+	case "Franchise.name":
+		if e.complexity.Franchise.Name == nil {
 			break
 		}
 
-		return e.complexity.Franchise.SiteName(childComplexity), true
+		return e.complexity.Franchise.Name(childComplexity), true
 
 	case "Franchise.title":
 		if e.complexity.Franchise.Title == nil {
@@ -360,6 +360,7 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 		ec.unmarshalInputCreateFranchiseInput,
 		ec.unmarshalInputFindFranchisesCriteria,
 		ec.unmarshalInputUpdateFranchiseInput,
+		ec.unmarshalInputUpdateLocationInput,
 	)
 	first := true
 
@@ -769,8 +770,8 @@ func (ec *executionContext) fieldContext_Company_franchises(ctx context.Context,
 				return ec.fieldContext_Franchise_id(ctx, field)
 			case "title":
 				return ec.fieldContext_Franchise_title(ctx, field)
-			case "siteName":
-				return ec.fieldContext_Franchise_siteName(ctx, field)
+			case "name":
+				return ec.fieldContext_Franchise_name(ctx, field)
 			case "url":
 				return ec.fieldContext_Franchise_url(ctx, field)
 			case "location":
@@ -1470,8 +1471,8 @@ func (ec *executionContext) fieldContext_Franchise_title(ctx context.Context, fi
 	return fc, nil
 }
 
-func (ec *executionContext) _Franchise_siteName(ctx context.Context, field graphql.CollectedField, obj *model.Franchise) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Franchise_siteName(ctx, field)
+func (ec *executionContext) _Franchise_name(ctx context.Context, field graphql.CollectedField, obj *model.Franchise) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Franchise_name(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -1484,7 +1485,7 @@ func (ec *executionContext) _Franchise_siteName(ctx context.Context, field graph
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.SiteName, nil
+		return obj.Name, nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -1501,7 +1502,7 @@ func (ec *executionContext) _Franchise_siteName(ctx context.Context, field graph
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Franchise_siteName(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Franchise_name(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Franchise",
 		Field:      field,
@@ -1892,8 +1893,8 @@ func (ec *executionContext) fieldContext_Mutation_updateFranchise(ctx context.Co
 				return ec.fieldContext_Franchise_id(ctx, field)
 			case "title":
 				return ec.fieldContext_Franchise_title(ctx, field)
-			case "siteName":
-				return ec.fieldContext_Franchise_siteName(ctx, field)
+			case "name":
+				return ec.fieldContext_Franchise_name(ctx, field)
 			case "url":
 				return ec.fieldContext_Franchise_url(ctx, field)
 			case "location":
@@ -1959,8 +1960,8 @@ func (ec *executionContext) fieldContext_Query_findFranchises(ctx context.Contex
 				return ec.fieldContext_Franchise_id(ctx, field)
 			case "title":
 				return ec.fieldContext_Franchise_title(ctx, field)
-			case "siteName":
-				return ec.fieldContext_Franchise_siteName(ctx, field)
+			case "name":
+				return ec.fieldContext_Franchise_name(ctx, field)
 			case "url":
 				return ec.fieldContext_Franchise_url(ctx, field)
 			case "location":
@@ -3946,7 +3947,7 @@ func (ec *executionContext) unmarshalInputUpdateFranchiseInput(ctx context.Conte
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"id", "url", "name", "company"}
+	fieldsInOrder := [...]string{"id", "title", "name", "location"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -3960,13 +3961,13 @@ func (ec *executionContext) unmarshalInputUpdateFranchiseInput(ctx context.Conte
 				return it, err
 			}
 			it.ID = data
-		case "url":
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("url"))
+		case "title":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("title"))
 			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
 			if err != nil {
 				return it, err
 			}
-			it.URL = data
+			it.Title = data
 		case "name":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("name"))
 			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
@@ -3974,13 +3975,61 @@ func (ec *executionContext) unmarshalInputUpdateFranchiseInput(ctx context.Conte
 				return it, err
 			}
 			it.Name = data
-		case "company":
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("company"))
-			data, err := ec.unmarshalOID2ᚖstring(ctx, v)
+		case "location":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("location"))
+			data, err := ec.unmarshalOUpdateLocationInput2ᚖgithubᚗcomᚋkaitsubakaᚋclubhub_franchisesᚋgraphᚋmodelᚐUpdateLocationInput(ctx, v)
 			if err != nil {
 				return it, err
 			}
-			it.Company = data
+			it.Location = data
+		}
+	}
+
+	return it, nil
+}
+
+func (ec *executionContext) unmarshalInputUpdateLocationInput(ctx context.Context, obj interface{}) (model.UpdateLocationInput, error) {
+	var it model.UpdateLocationInput
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"zip_code", "adress", "city", "country"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "zip_code":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("zip_code"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.ZipCode = data
+		case "adress":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("adress"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Adress = data
+		case "city":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("city"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.City = data
+		case "country":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("country"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Country = data
 		}
 	}
 
@@ -4271,8 +4320,8 @@ func (ec *executionContext) _Franchise(ctx context.Context, sel ast.SelectionSet
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
-		case "siteName":
-			out.Values[i] = ec._Franchise_siteName(ctx, field, obj)
+		case "name":
+			out.Values[i] = ec._Franchise_name(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -5271,22 +5320,6 @@ func (ec *executionContext) unmarshalOFindFranchisesCriteria2ᚖgithubᚗcomᚋk
 	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) unmarshalOID2ᚖstring(ctx context.Context, v interface{}) (*string, error) {
-	if v == nil {
-		return nil, nil
-	}
-	res, err := graphql.UnmarshalID(v)
-	return &res, graphql.ErrorOnPath(ctx, err)
-}
-
-func (ec *executionContext) marshalOID2ᚖstring(ctx context.Context, sel ast.SelectionSet, v *string) graphql.Marshaler {
-	if v == nil {
-		return graphql.Null
-	}
-	res := graphql.MarshalID(*v)
-	return res
-}
-
 func (ec *executionContext) unmarshalOString2ᚖstring(ctx context.Context, v interface{}) (*string, error) {
 	if v == nil {
 		return nil, nil
@@ -5301,6 +5334,14 @@ func (ec *executionContext) marshalOString2ᚖstring(ctx context.Context, sel as
 	}
 	res := graphql.MarshalString(*v)
 	return res
+}
+
+func (ec *executionContext) unmarshalOUpdateLocationInput2ᚖgithubᚗcomᚋkaitsubakaᚋclubhub_franchisesᚋgraphᚋmodelᚐUpdateLocationInput(ctx context.Context, v interface{}) (*model.UpdateLocationInput, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := ec.unmarshalInputUpdateLocationInput(ctx, v)
+	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
 func (ec *executionContext) marshalO__EnumValue2ᚕgithubᚗcomᚋ99designsᚋgqlgenᚋgraphqlᚋintrospectionᚐEnumValueᚄ(ctx context.Context, sel ast.SelectionSet, v []introspection.EnumValue) graphql.Marshaler {

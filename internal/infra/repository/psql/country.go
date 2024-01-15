@@ -35,3 +35,15 @@ func (lr *CountryRepository) Put(c dto.CountryDTO) (dto.CountryDTO, error) {
 	c.ID = localCountry.ID
 	return c, nil
 }
+
+func (lr *CountryRepository) GetByID(id uint) (dto.CountryDTO, error) {
+	localModel := new(pubdto.CountryModel)
+	trx := lr.db.Find(localModel, id)
+	if trx.Error != nil {
+		return dto.CountryDTO{}, trx.Error
+	}
+	return dto.CountryDTO{
+		ID:   localModel.ID,
+		Name: localModel.Name,
+	}, nil
+}

@@ -5,7 +5,7 @@
 type Franchise {
   id: ID!
   title: String!
-  siteName: String!
+  name: String!
   url: String!
   location: Location!
 }
@@ -58,9 +58,16 @@ input CreateFranchiseInput {
 
 input UpdateFranchiseInput {
   id: ID!
-  url: String
+  title: String
   name: String
-  company: ID
+  location: UpdateLocationInput
+}
+
+input UpdateLocationInput {
+  zip_code: String
+  adress: String
+  city: String
+  country: String
 }
 
 type CreatedFranchise {

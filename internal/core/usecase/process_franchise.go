@@ -15,10 +15,10 @@ import (
 
 type ProcessFranchiseUseCase struct {
 	franchiseServiceClient     pb.FranchiseServiceClient
-	pendingFranchiseRepository psqlrport.PendingFranchizeRepository
+	pendingFranchiseRepository psqlrport.PendingFranchiseRepository
 }
 
-func NewProcessFranchiseUseCase(serviceConn grpc.ClientConnInterface, pendingFranchiseRepository psqlrport.PendingFranchizeRepository) *ProcessFranchiseUseCase {
+func NewProcessFranchiseUseCase(serviceConn grpc.ClientConnInterface, pendingFranchiseRepository psqlrport.PendingFranchiseRepository) *ProcessFranchiseUseCase {
 	return &ProcessFranchiseUseCase{
 		franchiseServiceClient:     pb.NewFranchiseServiceClient(serviceConn),
 		pendingFranchiseRepository: pendingFranchiseRepository,
@@ -49,8 +49,9 @@ func (pfuc *ProcessFranchiseUseCase) process(in dto.PendingFranchiseDTO) error {
 	if err != nil {
 		return err
 	}
-	if status != "CREATED" {
-		return fmt.Errorf("process: the francise with id %s is not in status created", in.ID)
+	if (status == "COMPLETED" || status == "PROCESSING") && status != "ERROR" {
+		log.Println("[INFO] process: the franchise is already being processed by other routine ignoring request")
+		return nil
 	}
 	err = pfuc.pendingFranchiseRepository.UpdateStatus(dto.PendingFranchiseDTO{
 		ID:     in.ID,

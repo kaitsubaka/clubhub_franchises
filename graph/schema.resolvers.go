@@ -28,7 +28,37 @@ func (r *mutationResolver) CreateFranchise(ctx context.Context, input model.Crea
 
 // UpdateFranchise is the resolver for the updateFranchise field.
 func (r *mutationResolver) UpdateFranchise(ctx context.Context, input model.UpdateFranchiseInput) (*model.Franchise, error) {
-	panic(fmt.Errorf("not implemented: UpdateFranchise - updateFranchise"))
+	updatedFranchiseDTO, err := r.franchiseUseCase.Update(dto.UpdateFranchiseDTO{
+		ID:       input.ID,
+		Title:    input.Title,
+		SiteName: input.Name,
+		Location: func() *dto.UpdateLocationDTO {
+			if input.Location != nil {
+				return &dto.UpdateLocationDTO{
+					Address: input.Location.Adress,
+					ZipCode: input.Location.ZipCode,
+					City:    input.Location.City,
+					Country: input.Location.Country,
+				}
+			}
+			return nil
+		}(),
+	})
+	if err != nil {
+		return nil, err
+	}
+	return &model.Franchise{
+		ID:    updatedFranchiseDTO.ID,
+		Title: updatedFranchiseDTO.Title,
+		Name:  updatedFranchiseDTO.SiteName,
+		URL:   updatedFranchiseDTO.URL,
+		Location: &model.Location{
+			Adress:  updatedFranchiseDTO.Location.Address,
+			City:    updatedFranchiseDTO.Location.City,
+			Country: updatedFranchiseDTO.Location.Country,
+			ZipCode: updatedFranchiseDTO.Location.ZipCode,
+		},
+	}, nil
 }
 
 // FindFranchises is the resolver for the findFranchises field.

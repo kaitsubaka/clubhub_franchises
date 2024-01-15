@@ -45,7 +45,7 @@ type FindFranchisesCriteria struct {
 type Franchise struct {
 	ID       string    `json:"id"`
 	Title    string    `json:"title"`
-	SiteName string    `json:"siteName"`
+	Name     string    `json:"name"`
 	URL      string    `json:"url"`
 	Location *Location `json:"location"`
 }
@@ -64,8 +64,15 @@ type Query struct {
 }
 
 type UpdateFranchiseInput struct {
-	ID      string  `json:"id"`
-	URL     *string `json:"url,omitempty"`
-	Name    *string `json:"name,omitempty"`
-	Company *string `json:"company,omitempty"`
+	ID       string               `json:"id"`
+	Title    *string              `json:"title,omitempty"`
+	Name     *string              `json:"name,omitempty"`
+	Location *UpdateLocationInput `json:"location,omitempty"`
+}
+
+type UpdateLocationInput struct {
+	ZipCode *string `json:"zip_code,omitempty"`
+	Adress  *string `json:"adress,omitempty"`
+	City    *string `json:"city,omitempty"`
+	Country *string `json:"country,omitempty"`
 }

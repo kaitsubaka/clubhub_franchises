@@ -24,7 +24,6 @@ type CompanyModel struct {
 	OwnerID    string
 	TaxNumber  string
 	LocationID uint
-	Location   LocationModel `gorm:"foreignKey:LocationID;references:ID"`
 }
 
 func (CompanyModel) TableName() string {
@@ -48,8 +47,6 @@ type FranchiseModel struct {
 	RegistrantName       string
 	ContactEmail         string
 	LocationID           uint
-	Company              CompanyModel  `gorm:"foreignKey:CompanyID;references:ID"`
-	Location             LocationModel `gorm:"foreignKey:LocationID;references:ID"`
 }
 
 func (FranchiseModel) TableName() string {

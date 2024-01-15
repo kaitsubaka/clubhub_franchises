@@ -116,3 +116,86 @@ func (fuc *FranchiseUseCase) Create(f dto.PendingFranchiseDTO) error {
 
 	return nil
 }
+
+func (fuc *FranchiseUseCase) Update(u dto.UpdateFranchiseDTO) (dto.UpdatedFranchiseDTO, error) {
+	updateLocDTO := dto.UpdatedLocationDTO{}
+	if u.Location != nil {
+		locID, err := fuc.franchiseRepository.ConsultLocationID(u.ID)
+		if err != nil {
+			return dto.UpdatedFranchiseDTO{}, err
+		}
+		oldLocationDTO, err := fuc.locationRepository.GetByID(locID)
+		if err != nil {
+			return dto.UpdatedFranchiseDTO{}, err
+		}
+		oldCityDTO, err := fuc.cityRepository.GetByID(oldLocationDTO.CityID)
+		if err != nil {
+			return dto.UpdatedFranchiseDTO{}, err
+		}
+		oldCountryDTO, err := fuc.countryRepository.GetByID(oldCityDTO.CountryID)
+		if err != nil {
+			return dto.UpdatedFranchiseDTO{}, err
+		}
+
+		countryDTO, err := fuc.countryRepository.Put(dto.CountryDTO{
+			Name: func() string {
+				if u.Location.Country != nil {
+					return *u.Location.Country
+				}
+				return oldCountryDTO.Name
+			}(),
+		})
+		if err != nil {
+			return dto.UpdatedFranchiseDTO{}, err
+		}
+
+		cityDTO, err := fuc.cityRepository.Put(dto.CityDTO{
+			CountryID: countryDTO.ID,
+			Name: func() string {
+				if u.Location.City != nil {
+					return *u.Location.City
+				}
+				return oldCityDTO.Name
+			}(),
+		})
+		if err != nil {
+			return dto.UpdatedFranchiseDTO{}, err
+		}
+
+		locationDTO, err := fuc.locationRepository.Put(dto.LocationDTO{
+			CityID: cityDTO.ID,
+			Address: func() string {
+				if u.Location.Address != nil {
+					return *u.Location.Address
+				}
+				return oldLocationDTO.Address
+			}(),
+			ZipCode: func() string {
+				if u.Location.ZipCode != nil {
+					return *u.Location.ZipCode
+				}
+				return oldLocationDTO.ZipCode
+			}(),
+		})
+		if err != nil {
+			return dto.UpdatedFranchiseDTO{}, err
+		}
+
+		u.LocationID = &locationDTO.ID
+		updateLocDTO.Address = locationDTO.Address
+		updateLocDTO.City = cityDTO.Name
+		updateLocDTO.ZipCode = locationDTO.ZipCode
+		updateLocDTO.Country = countryDTO.Name
+	}
+	updatedDTO, err := fuc.franchiseRepository.Update(u)
+	if err != nil {
+		return dto.UpdatedFranchiseDTO{}, err
+	}
+	return dto.UpdatedFranchiseDTO{
+		ID:       updatedDTO.ID,
+		Title:    updatedDTO.Title,
+		SiteName: updatedDTO.SiteName,
+		URL:      updatedDTO.URL,
+		Location: updateLocDTO,
+	}, nil
+}
