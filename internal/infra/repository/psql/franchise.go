@@ -53,3 +53,39 @@ func (fr *FranchiseRepository) Put(f dto.FranchiseDTO) (dto.FranchiseDTO, error)
 
 	return f, nil
 }
+
+func (fr *FranchiseRepository) Update(f dto.UpdateFranchiseDTO) (dto.FranchiseDTO, error) {
+	model := new(pubdto.FranchiseModel)
+	trx := fr.db.First(model, "id = ?", f.ID)
+	if trx.Error != nil {
+		return dto.FranchiseDTO{}, trx.Error
+	}
+	if f.Title != nil {
+		model.Title = *f.Title
+	}
+	if f.SiteName != nil {
+		model.SiteName = *f.SiteName
+	}
+	if f.LocationID != nil {
+		model.LocationID = *f.LocationID
+	}
+	trx = fr.db.Save(model)
+	if trx.Error != nil {
+		return dto.FranchiseDTO{}, trx.Error
+	}
+	return dto.FranchiseDTO{
+		ID:       model.ID,
+		SiteName: model.SiteName,
+		Title:    model.Title,
+		URL:      model.URL,
+	}, nil
+}
+
+func (fr *FranchiseRepository) ConsultLocationID(id string) (uint, error) {
+	model := new(pubdto.FranchiseModel)
+	trx := fr.db.First(model, "id = ?", id)
+	if trx.Error != nil {
+		return 0, trx.Error
+	}
+	return model.LocationID, nil
+}

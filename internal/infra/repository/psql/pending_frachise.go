@@ -37,11 +37,12 @@ func (pfr *PendingFranchizeRepository) Put(n dto.PendingFranchiseDTO) (dto.Pendi
 }
 
 func (pfr *PendingFranchizeRepository) UpdateStatus(n dto.PendingFranchiseDTO) error {
-	trx := pfr.db.Save(&publicdto.PendingFranchizeModel{
+	localModel := &publicdto.PendingFranchizeModel{
 		ID:     n.ID,
 		Status: n.Status,
 		Error:  n.Error,
-	})
+	}
+	trx := pfr.db.Model(localModel).Updates(*localModel)
 	if trx.Error != nil {
 		return trx.Error
 	}

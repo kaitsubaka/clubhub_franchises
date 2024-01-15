@@ -24,6 +24,7 @@ type Resolver struct {
 	queue                   *queue.Queue
 	franchiseGRCPConn       *grpc.ClientConn
 	pendingFranchizeUseCase ucport.PendingFranchiseUseCase
+	franchiseUseCase        ucport.FranchiseUseCase
 }
 
 func NewResolver() *Resolver {
@@ -58,6 +59,14 @@ func NewResolver() *Resolver {
 		pendingFranchizeUseCase: usecase.NewPendingFranchiseUseCase(
 			pendingFranchiseRepository,
 			q,
+		),
+		franchiseUseCase: usecase.NewFranchiseUseCase(
+			nil,
+			psql.NewCountryRepository(db),
+			psql.NewCityRepository(db),
+			psql.NewCompanyRepository(db),
+			psql.NewLocationRepository(db),
+			psql.NewFranchiseRepository(db),
 		),
 	}
 }

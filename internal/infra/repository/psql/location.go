@@ -39,3 +39,17 @@ func (lr *LocationRepository) Put(l dto.LocationDTO) (dto.LocationDTO, error) {
 	l.ID = localLocation.ID
 	return l, nil
 }
+
+func (lr *LocationRepository) GetByID(id uint) (dto.LocationDTO, error) {
+	localLocation := new(publicdto.LocationModel)
+	trx := lr.db.Find(localLocation, id)
+	if trx.Error != nil {
+		return dto.LocationDTO{}, trx.Error
+	}
+	return dto.LocationDTO{
+		ID:      localLocation.ID,
+		Address: localLocation.Address,
+		ZipCode: localLocation.ZipCode,
+		CityID:  localLocation.CityID,
+	}, nil
+}

@@ -9,11 +9,11 @@ import (
 )
 
 type PendingFranchiseUseCase struct {
-	newFranchizeRepository     psql.PendingFranchizeRepository
+	newFranchizeRepository     psql.PendingFranchiseRepository
 	franchiseCreationPublisher qport.Publisher
 }
 
-func NewPendingFranchiseUseCase(newFranchizeRepository psql.PendingFranchizeRepository, franchiseCreationPublisher qport.Publisher) *PendingFranchiseUseCase {
+func NewPendingFranchiseUseCase(newFranchizeRepository psql.PendingFranchiseRepository, franchiseCreationPublisher qport.Publisher) *PendingFranchiseUseCase {
 	return &PendingFranchiseUseCase{
 		newFranchizeRepository:     newFranchizeRepository,
 		franchiseCreationPublisher: franchiseCreationPublisher,
