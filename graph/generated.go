@@ -3920,7 +3920,7 @@ func (ec *executionContext) unmarshalInputFindFranchisesCriteria(ctx context.Con
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"name"}
+	fieldsInOrder := [...]string{"name", "company", "city", "country"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -3934,6 +3934,27 @@ func (ec *executionContext) unmarshalInputFindFranchisesCriteria(ctx context.Con
 				return it, err
 			}
 			it.Name = data
+		case "company":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("company"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Company = data
+		case "city":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("city"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.City = data
+		case "country":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("country"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Country = data
 		}
 	}
 

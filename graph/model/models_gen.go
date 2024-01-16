@@ -39,7 +39,10 @@ type CreatedFranchise struct {
 }
 
 type FindFranchisesCriteria struct {
-	Name *string `json:"name,omitempty"`
+	Name    *string `json:"name,omitempty"`
+	Company *string `json:"company,omitempty"`
+	City    *string `json:"city,omitempty"`
+	Country *string `json:"country,omitempty"`
 }
 
 type Franchise struct {

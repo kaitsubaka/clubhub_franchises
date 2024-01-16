@@ -73,6 +73,7 @@ func main() {
 			psql.NewCompanyRepository(db),
 			psql.NewLocationRepository(db),
 			psql.NewFranchiseRepository(db),
+			nil,
 		),
 	))
 	// start serving to the address

@@ -46,6 +46,9 @@ type Location {
 
 input FindFranchisesCriteria {
   name: String
+  company: String
+  city: String
+  country: String
 }
 
 type Query {

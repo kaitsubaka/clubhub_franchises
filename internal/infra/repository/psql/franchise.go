@@ -89,3 +89,68 @@ func (fr *FranchiseRepository) ConsultLocationID(id string) (uint, error) {
 	}
 	return model.LocationID, nil
 }
+
+type DetailedFranchiseRepository struct {
+	db *gorm.DB
+}
+
+func NewDetailedFranchiseRepository(db *gorm.DB) *DetailedFranchiseRepository {
+	return &DetailedFranchiseRepository{db: db}
+}
+
+func (ffr *DetailedFranchiseRepository) FindAll(f dto.ConsultFranchiseCriterialDTO) ([]dto.FlatDetailedFranchiseDTO, error) {
+	var franchises []pubdto.FlatDetailedFranchiseModel
+	trx := ffr.db.Raw(`select
+	fr.id,
+	fr.title,
+	fr.site_name,
+	fr.url,
+	c."name" as city,
+	c2."name" as country,
+	loc.address as address,
+	loc.zip_code as zip_code
+from
+	franchises fr
+inner join companies c3 on
+	c3.id = fr.company_id
+inner join locations loc on
+	fr.location_id = loc.id
+inner join cities c on
+	c.id = loc.city_id
+inner join countries c2 on
+	c.country_id = c2.id
+where
+	c."name" ilike ?
+	and c2."name" ilike ?
+	and fr.site_name ilike ?
+	and c3."name" ilike ?;`,
+		createPlaceHolder(f.City),
+		createPlaceHolder(f.Country),
+		createPlaceHolder(f.FranchiseName),
+		createPlaceHolder(f.CompanyName),
+	).Scan(&franchises)
+	if trx.Error != nil {
+		return nil, trx.Error
+	}
+	franchisesDTO := make([]dto.FlatDetailedFranchiseDTO, 0, len(franchises))
+	for _, f := range franchises {
+		franchisesDTO = append(franchisesDTO, dto.FlatDetailedFranchiseDTO{
+			ID:       f.ID,
+			Title:    f.Title,
+			SiteName: f.SiteName,
+			URL:      f.URL,
+			Address:  f.Address,
+			City:     f.City,
+			Country:  f.Country,
+			ZipCode:  f.ZipCode,
+		})
+	}
+	return franchisesDTO, nil
+}
+
+func createPlaceHolder(in *string) string {
+	if in == nil {
+		return "%%"
+	}
+	return "%" + *in + "%"
+}

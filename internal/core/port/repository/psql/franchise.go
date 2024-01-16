@@ -7,3 +7,7 @@ type FranchiseRepository interface {
 	Update(c dto.UpdateFranchiseDTO) (dto.FranchiseDTO, error)
 	ConsultLocationID(id string) (uint, error)
 }
+
+type DetailedFranchiseRepository interface {
+	FindAll(c dto.ConsultFranchiseCriterialDTO) ([]dto.FlatDetailedFranchiseDTO, error)
+}
