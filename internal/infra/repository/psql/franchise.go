@@ -100,8 +100,7 @@ func NewDetailedFranchiseRepository(db *gorm.DB) *DetailedFranchiseRepository {
 
 func (ffr *DetailedFranchiseRepository) FindAll(f dto.ConsultFranchiseCriterialDTO) ([]dto.FlatDetailedFranchiseDTO, error) {
 	var franchises []pubdto.FlatDetailedFranchiseModel
-	trx := ffr.db.Raw(`select * from cities;
-select
+	trx := ffr.db.Raw(`select
 	fr.id,
 	fr.title,
 	fr.site_name,
