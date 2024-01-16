@@ -67,6 +67,7 @@ func NewResolver() *Resolver {
 			psql.NewCompanyRepository(db),
 			psql.NewLocationRepository(db),
 			psql.NewFranchiseRepository(db),
+			psql.NewDetailedFranchiseRepository(db),
 		),
 	}
 }

@@ -47,3 +47,21 @@ type UpdatedLocationDTO struct {
 	City    string
 	Country string
 }
+
+type ConsultFranchiseCriterialDTO struct {
+	FranchiseName *string
+	CompanyName   *string
+	Country       *string
+	City          *string
+}
+
+type FlatDetailedFranchiseDTO struct {
+	ID       string
+	Title    string
+	SiteName string
+	URL      string
+	Address  string
+	ZipCode  string
+	City     string
+	Country  string
+}

@@ -8,12 +8,13 @@ import (
 )
 
 type FranchiseUseCase struct {
-	franchiseScrapper   httprport.ScrapFranchiseRepository
-	countryRepository   psqlrport.CountryRepository
-	cityRepository      psqlrport.CityRepository
-	companyRepository   psqlrport.CompanyRepository
-	locationRepository  psqlrport.LocationRepository
-	franchiseRepository psqlrport.FranchiseRepository
+	franchiseScrapper           httprport.ScrapFranchiseRepository
+	countryRepository           psqlrport.CountryRepository
+	cityRepository              psqlrport.CityRepository
+	companyRepository           psqlrport.CompanyRepository
+	locationRepository          psqlrport.LocationRepository
+	franchiseRepository         psqlrport.FranchiseRepository
+	detailedFranchiseRepository psqlrport.DetailedFranchiseRepository
 }
 
 func NewFranchiseUseCase(
@@ -23,14 +24,16 @@ func NewFranchiseUseCase(
 	companyRepository psqlrport.CompanyRepository,
 	locationRepository psqlrport.LocationRepository,
 	franchiseRepository psqlrport.FranchiseRepository,
+	detailedFranchiseRepository psqlrport.DetailedFranchiseRepository,
 ) *FranchiseUseCase {
 	return &FranchiseUseCase{
-		franchiseScrapper:   franchiseScrapper,
-		countryRepository:   countryRepository,
-		cityRepository:      cityRepository,
-		companyRepository:   companyRepository,
-		locationRepository:  locationRepository,
-		franchiseRepository: franchiseRepository,
+		franchiseScrapper:           franchiseScrapper,
+		countryRepository:           countryRepository,
+		cityRepository:              cityRepository,
+		companyRepository:           companyRepository,
+		locationRepository:          locationRepository,
+		franchiseRepository:         franchiseRepository,
+		detailedFranchiseRepository: detailedFranchiseRepository,
 	}
 }
 
@@ -198,4 +201,8 @@ func (fuc *FranchiseUseCase) Update(u dto.UpdateFranchiseDTO) (dto.UpdatedFranch
 		URL:      updatedDTO.URL,
 		Location: updateLocDTO,
 	}, nil
+}
+
+func (fuc *FranchiseUseCase) GetAll(in dto.ConsultFranchiseCriterialDTO) ([]dto.FlatDetailedFranchiseDTO, error) {
+	return fuc.detailedFranchiseRepository.FindAll(in)
 }

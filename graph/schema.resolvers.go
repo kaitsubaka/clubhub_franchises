@@ -6,7 +6,6 @@ package graph
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/kaitsubaka/clubhub_franchises/graph/model"
 	"github.com/kaitsubaka/clubhub_franchises/internal/core/dto"
@@ -63,7 +62,31 @@ func (r *mutationResolver) UpdateFranchise(ctx context.Context, input model.Upda
 
 // FindFranchises is the resolver for the findFranchises field.
 func (r *queryResolver) FindFranchises(ctx context.Context, criteria *model.FindFranchisesCriteria) ([]*model.Franchise, error) {
-	panic(fmt.Errorf("not implemented: FindFranchises - findFranchises"))
+	franchises, err := r.franchiseUseCase.GetAll(dto.ConsultFranchiseCriterialDTO{
+		FranchiseName: criteria.Name,
+		CompanyName:   criteria.Company,
+		Country:       criteria.Country,
+		City:          criteria.City,
+	})
+	if err != nil {
+		return nil, err
+	}
+	response := make([]*model.Franchise, 0, len(franchises))
+	for _, f := range franchises {
+		response = append(response, &model.Franchise{
+			ID:    f.ID,
+			Title: f.Title,
+			Name:  f.SiteName,
+			URL:   f.URL,
+			Location: &model.Location{
+				Adress:  f.Address,
+				City:    f.City,
+				Country: f.Country,
+				ZipCode: f.ZipCode,
+			},
+		})
+	}
+	return response, nil
 }
 
 // Mutation returns MutationResolver implementation.

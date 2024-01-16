@@ -82,3 +82,14 @@ type CountryModel struct {
 func (CountryModel) TableName() string {
 	return "countries"
 }
+
+type FlatDetailedFranchiseModel struct {
+	ID       string
+	Title    string
+	SiteName string
+	URL      string
+	Address  string
+	ZipCode  string
+	City     string
+	Country  string
+}
