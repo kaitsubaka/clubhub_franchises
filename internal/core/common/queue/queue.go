@@ -37,11 +37,12 @@ func (q *Queue) Build() (*Queue, error) {
 	for i := 0; i < int(q.numWorkers); i++ {
 		go func(q *Queue) {
 			defer q.wg.Done()
+		Outer:
 			for {
 				select {
 				case e, ok := <-q.q:
 					if !ok && len(q.q) == 0 {
-						break
+						break Outer
 					}
 					q.subscriber.Subscribe(e)
 				}
