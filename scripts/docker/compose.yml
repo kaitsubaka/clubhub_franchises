@@ -13,6 +13,9 @@ services:
                   condition: service_healthy
     environment:
       - POSTGRES_HOST=postgres_db
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=admin
+      - POSTGRES_DBNAME=franchises_db
       - POSTGRES_PORT=5432
       - MS_CLIENT_HOST=grcp_app
       - MS_CLIENT_PORT=5001
@@ -32,6 +35,9 @@ services:
                   condition: service_started
     environment:
       - POSTGRES_HOST=postgres_db
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=admin
+      - POSTGRES_DBNAME=franchises_db
       - POSTGRES_PORT=5432
       - PORT=5001
       

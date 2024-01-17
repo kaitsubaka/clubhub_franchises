@@ -30,9 +30,9 @@ type Resolver struct {
 func NewResolver() *Resolver {
 	db, err := gorm.Open(postgres.Open(db.NewConnectionString(db.PostgresOptions{
 		Host:     os.Getenv("POSTGRES_HOST"),
-		User:     "postgres",
-		Password: "admin",
-		DBName:   "franchises_db",
+		User:     os.Getenv("POSTGRES_USER"),
+		Password: os.Getenv("POSTGRES_PASSWORD"),
+		DBName:   os.Getenv("POSTGRES_DBNAME"),
 		Port:     os.Getenv("POSTGRES_PORT"),
 	})), new(gorm.Config))
 	if err != nil {
@@ -73,6 +73,10 @@ func NewResolver() *Resolver {
 }
 
 func (r *Resolver) ShutDown() {
-	r.franchiseGRCPConn.Close()
-	r.queue.Close()
+	if r.franchiseGRCPConn != nil {
+		r.franchiseGRCPConn.Close()
+	}
+	if r.queue != nil {
+		r.queue.Close()
+	}
 }

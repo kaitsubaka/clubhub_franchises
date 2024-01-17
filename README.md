@@ -3,7 +3,8 @@
 Technical test for club hub, a dockerized application to manage company franchises.
 
 ## Deployment
-Run the next command from the project root with docker and docker compose insalled
+Run the next command from the project root with docker and docker compose insalled and wait until GraphqlAPP is serving in localhost:8080
+
 ```bash
 docker-compose -f ./scripts/docker/compose.yml up --build
 ```
