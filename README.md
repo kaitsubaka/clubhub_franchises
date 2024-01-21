@@ -1,6 +1,6 @@
 # ClubHUB Franchises
 
-Technical test for club hub, a dockerized application to manage company franchises.
+Technical test for club hub, a dockerized application to manage company franchises developed with gitflow workflow.
 
 ## Deployment
 Run the next command from the project root with docker and docker compose insalled then wait until GraphqlAPP is serving in localhost:8080
