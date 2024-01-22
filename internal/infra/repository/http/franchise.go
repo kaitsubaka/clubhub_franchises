@@ -51,6 +51,7 @@ func (sfr *ScrapFranchiseRepository) Scrap(url string) (scrap pubdto.ScrapDTO, e
 	if localErrors != nil {
 		log.Println("[INFO] Scrap: ", localErrors)
 	}
+	errors = localErrors
 	return
 }
 
