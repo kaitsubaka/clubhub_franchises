@@ -74,6 +74,25 @@ input FindFranchisesCriteria {
 
 ```
 * findFranchises: consult the fanchises by a optional concept defined in the FindFranchisesCriteria, you can filter with any concepts like name = clubhub, country=mexico. Returns the franchises that meet the criterial
+```graphql
+-- find all
+query{findFranchises(criteria:{
+}){
+  id
+  name
+}}
+{
+  "data": {
+    "findFranchises": [
+      {
+        "id": "0ee84167-20e7-4174-a353-337e4ec03bbe",
+        "name": "Marriott Bonvoy"
+      }
+    ]
+  }
+}
+```
+
 
 ### Mutations
 The following are the mutation that can be performed in the API to create or uptate data.
@@ -110,6 +129,15 @@ type CreatedFranchise {
 ```
 
 * createFranchise: creates a franchise from a given url
+```graphql
+  mutation{
+  createFranchise(input:{url:"http://marriott.com"}){
+    id
+    url
+  }
+}
+```
+note: only http without subdomines like www supported
 
 * updateFranchise: updates franchise data from any UpdateFranchiseInput optional arguments
 
